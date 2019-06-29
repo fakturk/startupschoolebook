@@ -19,12 +19,24 @@ for t in titles:
     span = t.span.text
     print(span)
     content=t.find_next_sibling(class_="content") 
+    # print(content.prettify())
+    pieces = []
     for c in content:
         pieceLink = c['href']
         pieceTitle = c.find(class_='piece-title').text
         pieceAuthor = c.find(class_='piece-author').text
-        # print(pieceTitle,pieceAuthor,pieceLink)
-        piece = [pieceTitle,pieceAuthor,pieceLink]
+        articleUrl = pieceLink
+        article = requests.get(articleUrl)
+        articleSoup = BeautifulSoup(article.text, 'html.parser')
+        # kill all script and style elements
+        for script in articleSoup(["script", "style"]):
+            script.decompose()    # rip it out
+        print(pieceTitle,pieceAuthor,pieceLink)
+        pieceContent = articleSoup.text
+        
+        piece = [pieceTitle,pieceAuthor,pieceLink,pieceContent]
+        pieces.append(piece)
+        print(pieceTitle,pieceAuthor,pieceLink,pieceContent)
         # print(c.prettify())
         # piece = soup.find_all(class_='piece')
         # # print(c)
@@ -32,8 +44,16 @@ for t in titles:
         #     print(p.text)
         
     # print(content)
-    articles[span]=piece
+    articles[span]=pieces
+    
 print(articles)
+# onearticleurl = 'http://paulgraham.com/bronze.html'
+# one = requests.get(onearticleurl)
+# oneSoup = BeautifulSoup(one.text, 'html.parser')
+# # kill all script and style elements
+# for script in oneSoup(["script", "style"]):
+#     script.decompose()    # rip it out
+# print(oneSoup.text)
 # tree = html.fromstring(r.content)
 # print(tree)
 #This will create a list of titles:
